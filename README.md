@@ -1,0 +1,1 @@
+# Simple thread save map
