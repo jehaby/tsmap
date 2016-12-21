@@ -75,3 +75,23 @@ func TestConcurrentCacheUsage(t *testing.T) {
 		}()
 	}
 }
+
+
+func getMapData() ([]string, *ThreadSafeMap){
+	keys := []string{"some", "key", "here"}
+	m := NewThreadSafeMap(300, keys)
+	return keys, m
+}
+
+
+func benchmarkThreadSafeMap(b *testing.B) {
+	keys, m := getMapData()
+
+	for n := 0; n < b.N; n++ {
+		m.Get(keys[rand.Intn(len(keys))])
+	}
+}
+
+func BenchmarkThreadSafeMap_Get(b *testing.B) {
+	benchmarkThreadSafeMap(b)
+}
