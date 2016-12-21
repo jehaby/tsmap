@@ -1,4 +1,4 @@
-package common
+package tsmap
 
 import (
 	"sync"
