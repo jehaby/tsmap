@@ -16,11 +16,12 @@ func (e *MapElement) IsExpired() bool {
 	return time.Now().Unix() > int64(e.expiresAt)
 }
 
-func (e *MapElement) Update(value string, ttl uint64) {
+func (e *MapElement) Update(value string, ttl uint64) error {
 	e.Lock()
 	defer e.Unlock()
 	e.value = value
 	e.expiresAt = uint64(time.Now().Unix()) + ttl
+	return nil
 }
 
 type ThreadSafeMap struct {
@@ -34,7 +35,7 @@ func NewThreadSafeMap(ttl uint64, keys []string) *ThreadSafeMap {
 	res.ttl = ttl
 	res.storage = make(map[string]*MapElement, len(keys))
 	for _, key := range keys {
-		res.storage[key] = nil
+		res.storage[key] = &MapElement{}
 	}
 	return res
 }
@@ -75,7 +76,7 @@ func (m *ThreadSafeMap) Get(key string) (string, error) {
 	return v.value, nil
 }
 
-func (m *ThreadSafeMap) Set(key string, value string, ttl uint64) {
+func (m *ThreadSafeMap) Set(key string, value string, ttl uint64) error {
 	if ttl == 0 {
 		ttl = m.ttl
 	}
@@ -97,5 +98,5 @@ func (m *ThreadSafeMap) Set(key string, value string, ttl uint64) {
 		m.RLock()
 	}
 
-	m.storage[key].Update(value, ttl)
+	return m.storage[key].Update(value, ttl)
 }
